@@ -1271,9 +1271,9 @@ jQuery(function () {
         }
     }
 
-    var buttons = jQuery('#tool__bar button').each(
+    jQuery('#tool__bar button').each( function( index ) {
 		jQuery(this).click( updateHandlesState )
-	)
+	})
 
     updateHandlesState();
 
@@ -1293,30 +1293,31 @@ jQuery(function () {
     });
 
     // Fix lock timer
+	if( typeof( locktimer ) != 'undefined' ) {
+		locktimer.init = function(timeout,msg,draft){
+			// init values
+			locktimer.timeout  = timeout*1000;
+			locktimer.msg      = msg;
+			locktimer.draft    = draft;
+			locktimer.lasttime = new Date();
 
-    locktimer.init = function(timeout,msg,draft){
-        // init values
-        locktimer.timeout  = timeout*1000;
-        locktimer.msg      = msg;
-        locktimer.draft    = draft;
-        locktimer.lasttime = new Date();
+			if(!$('dw__editform')) return;
+			locktimer.pageid = $('dw__editform').elements.id.value;
+			if(!locktimer.pageid) return;
 
-        if(!$('dw__editform')) return;
-        locktimer.pageid = $('dw__editform').elements.id.value;
-        if(!locktimer.pageid) return;
+			// init ajax component
+			locktimer.sack = new sack(DOKU_BASE + 'lib/exe/ajax.php');
+			locktimer.sack.AjaxFailedAlert = '';
+			locktimer.sack.encodeURIString = false;
+			locktimer.sack.onCompletion = locktimer.refreshed;
 
-        // init ajax component
-        locktimer.sack = new sack(DOKU_BASE + 'lib/exe/ajax.php');
-        locktimer.sack.AjaxFailedAlert = '';
-        locktimer.sack.encodeURIString = false;
-        locktimer.sack.onCompletion = locktimer.refreshed;
+			// register refresh event
+			addEvent($('dw__editform'),'keypress',function(){locktimer.refresh();});
+			addEvent($('tool__bar'),'keypress',function(){locktimer.refresh();});
 
-        // register refresh event
-        addEvent($('dw__editform'),'keypress',function(){locktimer.refresh();});
-        addEvent($('tool__bar'),'keypress',function(){locktimer.refresh();});
-
-        // start timer
-        locktimer.reset();
-    };
+			// start timer
+			locktimer.reset();
+		};
+	}
 });
 
