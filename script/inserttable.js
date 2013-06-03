@@ -1,5 +1,5 @@
 function addBtnActionInsertTable(btn, param, edid) {
-    addEvent(btn, 'click', function () {
+    jQuery(btn).click( function () {
         var editform = $('dw__editform');
         var ed = $(edid);
 

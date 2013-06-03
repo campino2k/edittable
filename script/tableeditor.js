@@ -13,15 +13,19 @@
  * @author Adrian Lang <lang@cosmocode.de>
  */
 
-addInitEvent(function () {
-    var table = getElementsByClass('edit', document, 'table')[0];
+jQuery(function () {
+    var table = jQuery('table.edit')[0];
+	var $table = jQuery( table ); // identification as jQuery Object
     if (!table) {
         // There is no table editor.
         return;
     }
-    initSizeCtl('size__ctl','edit__wrap');
+	/*
+	 *	Unknown function call. This function does not exist
+	 */
+    //initSizeCtl('size__ctl','edit__wrap');
     var tbody = table.getElementsByTagName('tbody')[0];
-    prependChild(table, document.createElement('thead'));
+    $table.prepend(jQuery('<thead/>'));
 
     // The currently selected table field
     var cur_field = null;
@@ -36,11 +40,14 @@ addInitEvent(function () {
         }
         cur_field = newcur;
         lastChildElement.call(cur_field).focus();
-        if ($('table__cur_field')) {
-            $('table__cur_field').id = '';
+        if (jQuery('#table__cur_field')) {
+            jQuery('#table__cur_field').id = '';
         }
         lastChildElement.call(cur_field).id = 'table__cur_field';
-        linkwiz.textArea = lastChildElement.call(cur_field);
+		/*
+		 * Unknown function, does not exist
+		 */
+        //linkwiz.textArea = lastChildElement.call(cur_field);
         for (var i = 0 ; i < setCurrentField._handlers.length ; ++i) {
             setCurrentField._handlers[i].call(cur_field);
         }
@@ -522,7 +529,8 @@ addInitEvent(function () {
      */
     // Attaches focus handlers and methods to a cell.
     function pimp() {
-        addEvent(lastChildElement.call(this), 'focus', function() { return setCurrentField(this.parentNode); });
+        //addEvent(lastChildElement.call(this), 'focus', function() { return setCurrentField(this.parentNode); });
+        jQuery( lastChildElement.call(this) ).focus( function() { return setCurrentField(this.parentNode); } );
 
         this.nextCell = function () {
             var nextcell = this;
@@ -800,7 +808,7 @@ addInitEvent(function () {
      */
     function prepareButton(button, click_handler, update_handler) {
         // Click handler
-        addEvent(button, 'click', function () {
+        jQuery(button).click( function () {
             var nextcur = cur_field ? click_handler() :
                           tbody.rows[0].cells[1];
             if (!nextcur) {
@@ -927,7 +935,7 @@ addInitEvent(function () {
     };
     var table_toolbar = document.createElement('div');
     table_toolbar.id = 'tool__bar_table';
-    $('tool__bar').parentNode.insertBefore(table_toolbar, $('tool__bar'));
+    jQuery('#tool__bar').append( table_toolbar );
     initToolbar('tool__bar_table', 'dw__editform', window.table_toolbar);
 
     setCurrentField(tbody.rows[0].cells[0]);
@@ -1156,7 +1164,10 @@ addInitEvent(function () {
         handle.innerHTML = '&nbsp;';
         handle.className = 'handle ' + text + 'handle';
 
-        (new TableEditorDrag()).attach(handle);
+		/**
+		 * TODO: Rewrite Drag-Part
+		 */
+        //(new TableEditorDrag()).attach(handle);
         var dropdown = document.createElement('span');
         dropdown.className = 'handle_dropdown';
         var dropbuttn = document.createElement('img');
@@ -1200,7 +1211,7 @@ addInitEvent(function () {
             var b = document.createElement('li');
             b.appendChild(document.createElement('a'));
             b.firstChild.innerHTML = LANG.plugins.edittable['struct_' + text + '_' + items[item][0]];
-            addEvent(b.firstChild, 'click', bind(function (c) {
+            jQuery( b.firstChild ).click( bind(function (c) {
                              dropcontent.style.display = 'none'; c(); }, items[item][1]));
             dropcontent.firstChild.appendChild(b);
         }
@@ -1211,7 +1222,8 @@ addInitEvent(function () {
         if (handles_done) updateHandleState(handle);
     }
 
-    addEvent(document.body, 'mousedown', function (e) {
+    //addEvent(document.body, 'mousedown', function (e) {
+    jQuery(document.body).mousedown( function (e) {
         // Check if we are in a dropdown
         var tgt = e.target;
         while (tgt && !hasClass(tgt, 'handle_dropdown')) {
@@ -1227,7 +1239,7 @@ addInitEvent(function () {
         }
 
         // Hide all dropdowns
-        var dropdowns = getElementsByClass('handle_dropdown', $('dw__editform'), 'span');
+        var dropdowns = jQuery( 'span.handle_dropdown' );
         for (var drop = 0 ; drop < dropdowns.length ; ++drop) {
             dropdowns[drop].lastChild.style.display = 'none';
         }
@@ -1245,7 +1257,7 @@ addInitEvent(function () {
     }
     var nullhandle = document.createElement('TD');
     nullhandle.className = 'handle nullhandle';
-    prependChild(newrow, nullhandle);
+    jQuery( newrow ).prepend( nullhandle );
 
     table.forEveryRow(function () {
         addHandle.call(this, 'row', this.firstChild);
@@ -1253,21 +1265,20 @@ addInitEvent(function () {
     handles_done = true;
 
     function updateHandlesState () {
-        var handles = getElementsByClass('handle', table, 'td');
+        var handles = jQuery( 'td.handle' );
         for (var handle = 0 ; handle < handles.length ; ++handle) {
             updateHandleState(handles[handle]);
         }
     }
 
-    var buttons = $('tool__bar').getElementsByTagName('button');
-    for (var i = 0 ; i < buttons.length ; ++i) {
-        addEvent(buttons[i], 'click', updateHandlesState);
-    }
+    var buttons = jQuery('#tool__bar button').each(
+		jQuery(this).click( updateHandlesState )
+	)
 
     updateHandlesState();
 
     setCurrentField._handlers.push(function () {
-        var handles = getElementsByClass('handle', table, 'td');
+        var handles = jQuery( 'td.handle' );
         for (var handle = 0 ; handle < handles.length ; ++handle) {
             removeClass(handles[handle], 'curhandle');
         }
